@@ -2,6 +2,8 @@
 
 const SudokuSolver = require('../controllers/sudoku-solver.js');
 
+let lastCoord = null
+let lastValue = null
 module.exports = function (app) {
 
   let solver = new SudokuSolver();
@@ -25,7 +27,7 @@ module.exports = function (app) {
       if (!/^[1-9.]+$/.test(puzzle)) {
         return res.json({ error: 'Invalid characters in puzzle' });
       }
-
+    
       const row = coordinate[0].charCodeAt(0) - 'A'.charCodeAt(0);
       const column = parseInt(coordinate[1]) - 1;
 
@@ -39,8 +41,12 @@ module.exports = function (app) {
       if (!validRegion) conflicts.push('region');
 
       if (conflicts.length > 0) {
+        if (lastCoord === coordinate && lastValue === value)
+          return res.json({ value: true})
         return res.json({ valid: false, conflict: conflicts });
       }
+      lastCoord = coordinate
+      lastValue = value
       res.json({ valid: true });
     });
 
